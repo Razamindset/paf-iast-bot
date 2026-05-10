@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import re
+import fitz  # PyMuPDF
+import io
 
 class SimpleCrawler:
     def __init__(self, base_url, max_pages=50):
@@ -11,7 +13,7 @@ class SimpleCrawler:
         self.max_pages = max_pages
         self.ignore_patterns = [
             '/202', '/tag/', '/author/', '/feed/', '/category/blog/', 
-            '/events/', '/calendar/', '/page/', '.pdf', '.jpg', '.png'
+            '/events/', '/calendar/', '/page/', '.jpg', '.png', '.zip', '.mp4'
         ]
 
     def is_valid(self, url):
@@ -44,15 +46,22 @@ class SimpleCrawler:
             
         return chunks
 
-    def extract_text(self, html):
+    def extract_html_text(self, html):
         soup = BeautifulSoup(html, 'html.parser')
-        # Remove script and style elements
         for script in soup(["script", "style", "nav", "footer", "header"]):
             script.extract()
         text = soup.get_text(separator=' ')
-        # Clean whitespace
-        text = re.sub(r'\s+', ' ', text).strip()
-        return text
+        return re.sub(r'\s+', ' ', text).strip()
+
+    def extract_pdf_text(self, pdf_bytes):
+        text = ""
+        try:
+            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            for page in doc:
+                text += page.get_text() + " "
+        except Exception as e:
+            print(f"    [!] Error reading PDF: {e}")
+        return re.sub(r'\s+', ' ', text).strip()
 
     def crawl(self):
         queue = [self.base_url]
@@ -68,23 +77,33 @@ class SimpleCrawler:
             
             try:
                 response = requests.get(url, timeout=10)
-                if response.status_code != 200 or 'text/html' not in response.headers.get('Content-Type', ''):
+                if response.status_code != 200:
                     continue
                     
-                html = response.text
-                text = self.extract_text(html)
+                content_type = response.headers.get('Content-Type', '').lower()
+                text = ""
+                
+                # Check if it's HTML or PDF
+                if 'application/pdf' in content_type:
+                    print(f"  -> Found PDF! Extracting text...")
+                    text = self.extract_pdf_text(response.content)
+                elif 'text/html' in content_type:
+                    html = response.text
+                    text = self.extract_html_text(html)
+                    
+                    # Only HTML pages have internal links to discover
+                    soup = BeautifulSoup(html, 'html.parser')
+                    for a in soup.find_all('a', href=True):
+                        next_url = urljoin(url, a['href']).split('#')[0]
+                        if self.is_valid(next_url) and next_url not in self.visited:
+                            queue.append(next_url)
+                else:
+                    continue
                 
                 if text:
                     chunks = self.chunk_text(text)
                     yield url, chunks
-                    
-                pages_crawled += 1
-                
-                soup = BeautifulSoup(html, 'html.parser')
-                for a in soup.find_all('a', href=True):
-                    next_url = urljoin(url, a['href']).split('#')[0]
-                    if self.is_valid(next_url) and next_url not in self.visited:
-                        queue.append(next_url)
+                    pages_crawled += 1
                         
             except Exception as e:
                 print(f"Error crawling {url}: {e}")

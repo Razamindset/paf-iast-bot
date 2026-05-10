@@ -1,0 +1,6 @@
+requests
+beautifulsoup4
+supabase>=2.3.0
+sentence-transformers
+python-dotenv
+pymupdf

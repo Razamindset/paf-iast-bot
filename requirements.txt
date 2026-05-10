@@ -1,6 +1,0 @@
-requests
-beautifulsoup4
-supabase>=2.3.0
-google-genai
-groq
-python-dotenv

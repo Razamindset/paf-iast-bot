@@ -1,14 +1,14 @@
 import os
 from dotenv import load_dotenv
 from groq import Groq
-from src.embedder import GoogleEmbedder
+from src.embedder import GeminiEmbedder
 from src.database import SupabaseDB
 
 def main():
     load_dotenv()
     
     print("Initializing PAF-IAST Chatbot...")
-    embedder = GoogleEmbedder()
+    embedder = GeminiEmbedder()
     db = SupabaseDB()
     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     

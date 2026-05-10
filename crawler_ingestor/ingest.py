@@ -2,7 +2,7 @@ import os
 import time
 from dotenv import load_dotenv
 from src.crawler_simple import SimpleCrawler
-from src.embedder import GoogleEmbedder
+from src.embedder import LocalEmbedder
 from src.database import SupabaseDB
 
 def main():
@@ -10,7 +10,7 @@ def main():
     
     print("Initializing PAF-IAST Ingestion Pipeline...")
     crawler = SimpleCrawler(base_url="https://paf-iast.edu.pk/", max_pages=100)
-    embedder = GoogleEmbedder()
+    embedder = LocalEmbedder()
     db = SupabaseDB()
     
     total_chunks_inserted = 0
@@ -36,16 +36,13 @@ def main():
                     continue
                     
                 # 1. Embed the chunk
-                print(f"  [{i+1}/{len(chunks)}] Requesting embedding from Google GenAI... ", end="", flush=True)
+                print(f"  [{i+1}/{len(chunks)}] Generating local embedding... ", end="", flush=True)
                 embedding = embedder.embed_text(chunk)
                 
                 # 2. Store in Supabase
                 db.insert_chunk(url, chunk, embedding)
                 total_chunks_inserted += 1
                 print("Done & Saved to Supabase!")
-                
-                # Sleep briefly to avoid Google Generative AI rate limits
-                time.sleep(0.5)
             except Exception as e:
                 print(f"\n  [{i+1}/{len(chunks)}] Failed to process chunk: {e}")
                 
