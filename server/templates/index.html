@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAF-IAST Bot | University Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo-section">
+                <div class="bot-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="title-text">
+                    <h1>PAF-IAST Bot</h1>
+                    <p>Official University Assistant</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <span class="dot"></span> Online
+            </div>
+        </header>
+
+        <main id="chat-window">
+            <div class="message bot-message">
+                <div class="message-content">
+                    Hello! I'm the PAF-IAST Bot. How can I help you today with information regarding our scholarships, admissions, or programs?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your question here..." autocomplete="off">
+                <button id="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <p class="disclaimer">Answers are based on official records. For critical decisions, please verify with the university office.</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

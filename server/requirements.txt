@@ -2,3 +2,6 @@ supabase>=2.3.0
 groq
 python-dotenv
 google-generativeai
+fastapi
+uvicorn
+jinja2
