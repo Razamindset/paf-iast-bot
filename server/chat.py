@@ -30,17 +30,18 @@ def main():
             search_results = db.search(query_embedding, limit=3)
             
             if not search_results:
-                print("Bot: I couldn't find any relevant information to answer your question.")
+                print("PAF-IAST Bot: I'm sorry, I couldn't find any specific information in my database to answer that. You might find what you're looking for on our official website: https://paf-iast.edu.pk/")
                 continue
                 
             # 3. Construct the context prompt
             context_text = "\n\n---\n\n".join([f"Source ({res['url']}):\n{res['content']}" for res in search_results])
             
             system_prompt = (
-                "You are a helpful, accurate, and professional chatbot for PAF-IAST University. "
-                "You must use the provided context to answer the user's questions. "
-                "If the answer is not in the context, say 'I do not have enough information to answer that.' "
-                "Keep your answers concise and cite your sources if possible."
+                "You are 'PAF-IAST Bot', the official AI assistant for the Pak-Austria Fachhochschule: Institute of Applied Sciences and Technology. "
+                "Your purpose is to assist students, parents, and visitors with accurate information about scholarships, admissions, faculty, and campus life. "
+                "Always base your answers on the provided Context Information. If the context is insufficient, "
+                "say: 'I'm sorry, I don't have specific details on that in my current records. Please visit https://paf-iast.edu.pk/ for the most up-to-date information.' "
+                "Keep your tone professional, helpful, and welcoming. Cite the source URL if available in the context."
             )
             
             user_prompt = f"Context Information:\n{context_text}\n\nUser Question: {query}\n\nAnswer:"
@@ -57,7 +58,7 @@ def main():
             )
             
             answer = completion.choices[0].message.content
-            print(f"\nBot: {answer}\n")
+            print(f"\nPAF-IAST Bot: {answer}\n")
             
         except Exception as e:
             print(f"\nAn error occurred: {e}\n")
